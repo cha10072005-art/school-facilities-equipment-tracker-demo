@@ -18,3 +18,31 @@ Copilot created index.html with a concern form and saved concerns section.
 - Verified:
 All six test cases passed.
 
+
+
+## FR-02: Filter Concerns by Category
+
+**Prompt Used:**
+
+Add a category filter to the Saved Concerns section of my existing School Facilities and Equipment Concern Tracker.
+
+Allow users to filter saved concerns by category, including an option to display all concerns.
+
+Keep the existing form, validation, localStorage functionality, and design unchanged.
+
+Use only the existing index.html file. Do not use libraries or frameworks.
+
+After implementing the feature, explain how I can test it.
+
+**AI Tool:** GitHub Copilot Agent Mode
+
+**File Modified:** index.html
+
+**Feature Implemented:** Category filter with an All categories option.
+
+**Testing:** [Testing: Successfully tested the category filter.
+Electrical and Furniture categories displayed only their matching concerns.
+The All categories option displayed all saved concerns.
+Saved records remained available after refreshing the page.]
+
+**Fixes Made:** [No fixes needed.]

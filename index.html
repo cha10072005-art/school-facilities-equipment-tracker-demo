@@ -244,6 +244,12 @@
 
     <section aria-labelledby="records-heading">
       <h2 id="records-heading">Saved Concerns</h2>
+      <label for="category-filter">
+        Filter by category
+        <select id="category-filter">
+          <option value="">All categories</option>
+        </select>
+      </label>
       <div id="records"></div>
     </section>
   </main>
@@ -254,7 +260,13 @@
     const dateInput = document.querySelector("#date-reported");
     const status = document.querySelector("#status");
     const recordsContainer = document.querySelector("#records");
+    const categoryFilter = document.querySelector("#category-filter");
     const submitButton = document.querySelector("#submit-button");
+
+    // Keep filter choices in sync with the categories available on the form.
+    document.querySelectorAll("#category option").forEach((option) => {
+      if (option.value) categoryFilter.append(option.cloneNode(true));
+    });
 
     // Use local calendar time for the date input's latest allowed date.
     function getLocalDateString() {
@@ -292,11 +304,17 @@
 
     function renderConcerns(concerns) {
       recordsContainer.replaceChildren();
+      const selectedCategory = categoryFilter.value;
+      const visibleConcerns = selectedCategory
+        ? concerns.filter((concern) => concern.category === selectedCategory)
+        : concerns;
 
-      if (concerns.length === 0) {
+      if (visibleConcerns.length === 0) {
         const emptyMessage = document.createElement("p");
         emptyMessage.className = "empty";
-        emptyMessage.textContent = "No concerns have been submitted yet.";
+        emptyMessage.textContent = selectedCategory
+          ? "No saved concerns match this category."
+          : "No concerns have been submitted yet.";
         recordsContainer.append(emptyMessage);
         return;
       }
@@ -320,7 +338,7 @@
       table.append(thead);
 
       const tbody = document.createElement("tbody");
-      concerns.forEach((concern) => {
+      visibleConcerns.forEach((concern) => {
         const row = document.createElement("tr");
         addCell(row, concern.category);
         addCell(row, concern.location);
@@ -335,12 +353,15 @@
       recordsContainer.append(wrapper);
     }
 
+    categoryFilter.addEventListener("change", () => renderConcerns(concerns));
+
     let concerns;
     try {
       concerns = loadConcerns();
       renderConcerns(concerns);
     } catch (error) {
       submitButton.disabled = true;
+      categoryFilter.disabled = true;
       showStatus(`Unable to load saved concerns: ${error.message}`, "error");
     }
 
