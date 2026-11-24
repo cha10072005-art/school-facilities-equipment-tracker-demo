@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Facilities &amp; Equipment Concern Tracker | Medina College Ipil</title>
+  <style>
+    :root {
+      font-family: Arial, sans-serif;
+      color: #1f2937;
+      background: #f3f6f8;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 32px 16px;
+    }
+
+    main {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    header,
+    section {
+      padding: 24px;
+      margin-bottom: 20px;
+      background: #fff;
+      border: 1px solid #e1e7eb;
+      border-radius: 10px;
+    }
+
+    header {
+      border-top: 5px solid #176b55;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      color: #176b55;
+      font-size: 1.7rem;
+    }
+
+    h2 {
+      margin: 0 0 18px;
+      font-size: 1.2rem;
+    }
+
+    p {
+      margin: 0;
+      color: #52616b;
+    }
+
+    form {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    label {
+      display: grid;
+      gap: 7px;
+      font-size: .95rem;
+      font-weight: 600;
+    }
+
+    .full-width {
+      grid-column: 1 / -1;
+    }
+
+    input,
+    select,
+    textarea,
+    button {
+      font: inherit;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 10px 11px;
+      background: #fff;
+      border: 1px solid #bdc8ce;
+      border-radius: 6px;
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: #176b55;
+      outline: 2px solid #8bc5b3;
+    }
+
+    button {
+      justify-self: start;
+      padding: 11px 18px;
+      color: #fff;
+      font-weight: 700;
+      background: #176b55;
+      border: 0;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #10513f;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: .6;
+    }
+
+    #status {
+      min-height: 1.25em;
+      margin-top: 14px;
+      font-size: .95rem;
+    }
+
+    .error {
+      color: #a32121;
+    }
+
+    .success {
+      color: #176b55;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th,
+    td {
+      padding: 12px 10px;
+      border-bottom: 1px solid #e1e7eb;
+      vertical-align: top;
+    }
+
+    th {
+      color: #34443f;
+      background: #f5f8f7;
+      font-size: .9rem;
+    }
+
+    td.description {
+      min-width: 200px;
+      white-space: pre-wrap;
+    }
+
+    .empty {
+      padding: 16px 0;
+      color: #667780;
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 16px 10px;
+      }
+
+      header,
+      section {
+        padding: 18px;
+      }
+
+      form {
+        grid-template-columns: 1fr;
+      }
+
+      .full-width {
+        grid-column: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>School Facilities &amp; Equipment Concern Tracker</h1>
+      <p>Medina College Ipil</p>
+    </header>
+
+    <section aria-labelledby="form-heading">
+      <h2 id="form-heading">Report a Concern</h2>
+      <form id="concern-form">
+        <label for="category">
+          Category
+          <select id="category" required>
+            <option value="">Select a category</option>
+            <option>Electrical</option>
+            <option>Furniture</option>
+            <option>Plumbing</option>
+            <option>Classroom</option>
+            <option>Laboratory Equipment</option>
+            <option>ICT Equipment</option>
+            <option>Safety</option>
+            <option>Other</option>
+          </select>
+        </label>
+
+        <label for="location">
+          Location
+          <input id="location" type="text" required maxlength="100"
+                 placeholder="e.g. Room 204">
+        </label>
+
+        <label for="item">
+          Item or facility name
+          <input id="item" type="text" required maxlength="100"
+                 placeholder="e.g. Ceiling fan">
+        </label>
+
+        <label for="date-reported">
+          Date reported
+          <input id="date-reported" type="date" required>
+        </label>
+
+        <label for="description" class="full-width">
+          Description
+          <textarea id="description" required maxlength="1000"
+                    placeholder="Describe the concern..."></textarea>
+        </label>
+
+        <button id="submit-button" class="full-width" type="submit">
+          Submit concern
+        </button>
+      </form>
+      <p id="status" role="status" aria-live="polite"></p>
+    </section>
+
+    <section aria-labelledby="records-heading">
+      <h2 id="records-heading">Saved Concerns</h2>
+      <div id="records"></div>
+    </section>
+  </main>
+
+  <script>
+    const STORAGE_KEY = "medinaCollegeConcerns";
+    const form = document.querySelector("#concern-form");
+    const dateInput = document.querySelector("#date-reported");
+    const status = document.querySelector("#status");
+    const recordsContainer = document.querySelector("#records");
+    const submitButton = document.querySelector("#submit-button");
+
+    // Use local calendar time for the date input's latest allowed date.
+    function getLocalDateString() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, "0");
+      const day = String(now.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    dateInput.max = getLocalDateString();
+
+    function showStatus(message, type) {
+      status.textContent = message;
+      status.className = type;
+    }
+
+    function loadConcerns() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      const concerns = saved ? JSON.parse(saved) : [];
+
+      if (!Array.isArray(concerns)) {
+        throw new Error("Saved concern data is not in the expected format.");
+      }
+
+      return concerns;
+    }
+
+    function addCell(row, value, className = "") {
+      const cell = document.createElement("td");
+      cell.textContent = value;
+      if (className) cell.className = className;
+      row.append(cell);
+    }
+
+    function renderConcerns(concerns) {
+      recordsContainer.replaceChildren();
+
+      if (concerns.length === 0) {
+        const emptyMessage = document.createElement("p");
+        emptyMessage.className = "empty";
+        emptyMessage.textContent = "No concerns have been submitted yet.";
+        recordsContainer.append(emptyMessage);
+        return;
+      }
+
+      const wrapper = document.createElement("div");
+      wrapper.className = "table-wrap";
+
+      const table = document.createElement("table");
+      const thead = document.createElement("thead");
+      const headerRow = document.createElement("tr");
+
+      ["Category", "Location", "Item or facility", "Date reported", "Description"]
+        .forEach((heading) => {
+          const th = document.createElement("th");
+          th.scope = "col";
+          th.textContent = heading;
+          headerRow.append(th);
+        });
+
+      thead.append(headerRow);
+      table.append(thead);
+
+      const tbody = document.createElement("tbody");
+      concerns.forEach((concern) => {
+        const row = document.createElement("tr");
+        addCell(row, concern.category);
+        addCell(row, concern.location);
+        addCell(row, concern.item);
+        addCell(row, concern.dateReported);
+        addCell(row, concern.description, "description");
+        tbody.append(row);
+      });
+
+      table.append(tbody);
+      wrapper.append(table);
+      recordsContainer.append(wrapper);
+    }
+
+    let concerns;
+    try {
+      concerns = loadConcerns();
+      renderConcerns(concerns);
+    } catch (error) {
+      submitButton.disabled = true;
+      showStatus(`Unable to load saved concerns: ${error.message}`, "error");
+    }
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const reportedDate = dateInput.value;
+      if (!reportedDate || !dateInput.validity.valid ||
+          reportedDate > getLocalDateString()) {
+        showStatus("Enter a valid date that is not in the future.", "error");
+        dateInput.focus();
+        return;
+      }
+
+      const concern = {
+        category: document.querySelector("#category").value,
+        location: document.querySelector("#location").value.trim(),
+        item: document.querySelector("#item").value.trim(),
+        dateReported: reportedDate,
+        description: document.querySelector("#description").value.trim()
+      };
+
+      if (Object.values(concern).some((value) => !value)) {
+        showStatus("Please complete every field.", "error");
+        return;
+      }
+
+      try {
+        const updatedConcerns = [...concerns, concern];
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedConcerns));
+        concerns = updatedConcerns;
+        renderConcerns(concerns);
+        form.reset();
+        showStatus("Concern saved successfully.", "success");
+      } catch (error) {
+        showStatus(`Unable to save the concern: ${error.message}`, "error");
+      }
+    });
+  </script>
+</body>
+</html>
