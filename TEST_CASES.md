@@ -10,3 +10,15 @@
 | TC-05 | Refresh the browser after submitting a concern | Saved concern remains displayed | Record remains | PASS |
 | TC-06 | Submit multiple concerns | All saved concerns are displayed | Records displayed | PASS |
 
+
+
+## FR-02: Filter Concerns by Category
+
+| Test No. | Test Description | Expected Result | Actual Result | Status |
+|---|---|---|---|---|
+| TC-07 | Add an Electrical concern | Concern is saved and displayed | [PASS] | [PASS/FAIL] |
+| TC-08 | Add a Furniture concern | Concern is saved and displayed | [PASS] | [PASS/FAIL] |
+| TC-09 | Select Electrical category | Only Electrical concerns appear | [PASS] | [PASS/FAIL] |
+| TC-10 | Select Furniture category | Only Furniture concerns appear | [PASS] | [PASS/FAIL] |
+| TC-11 | Select All categories | All saved concerns appear | [PASS] | [PASS/FAIL] |
+| TC-12 | Refresh the page | Saved concerns remain available | [PASS] | [PASS/FAIL] |
